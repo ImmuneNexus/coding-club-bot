@@ -6,8 +6,7 @@ async def main(message,args,db):
         await message.reply("No arguments were provided!")
 
 info = {
-    "usage":"`!setprefix ?`",
+    "usage":"`!prsetprefix` `new prefix`",
     "description":"A command to change the prefix of the server",
-    "args":["new prefix"]
 }
 

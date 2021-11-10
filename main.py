@@ -47,7 +47,6 @@ class MyClient(discord.Client):
             #remove whitespace arguments
             args = list(filter(None, args))
 
-            await message.reply("Prefix detected!")
             #extract the command (first word minus the prefix)
             command = args[0][len(settings["prefix"]):]
             args = args[1:]
