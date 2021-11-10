@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #initialize connection to database
-dbclient = pymongo.MongoClient("mongodb+srv://admin:admin1234@cluster0.ud89j.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+dbclient = pymongo.MongoClient(os.environ.get("DATABASE_ADDRESS"))
 db = dbclient.test
 
 #create client class which will hold what to do on certain events
