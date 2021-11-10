@@ -3,7 +3,7 @@ import discord
 import importlib
 
 from discord.embeds import Embed
-async def main(message,args,db):
+async def main(client,message,args,db):
     commands = os.listdir("./Commands")
     commands = list(filter(lambda a: os.path.isfile("./Commands/"+a),commands))
     commands.remove("__init__.py")

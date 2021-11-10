@@ -23,7 +23,6 @@ class MyClient(discord.Client):
 
 
 
-
     async def on_message(self, message):
 
         #if no database entry exists for the server, make one.
@@ -32,7 +31,7 @@ class MyClient(discord.Client):
             print(str(message.guild.members))
             for member in message.guild.members:
                 # !!ADD LEVELS!!!
-                dictofusers[str(member.id)] = {"xp":0}
+                dictofusers[str(member.id)] = {"xp":0,"level":1}
                 
             post = {
                 "_id":message.guild.id,
@@ -42,6 +41,16 @@ class MyClient(discord.Client):
             db.ServerInfo.insert_one(post)
         #grab the sever settings from the database
         settings = db.ServerInfo.find_one({"_id":message.guild.id})
+
+        #add xp
+        #max_xp = db.ServerInfo.find_one()
+
+
+
+
+
+
+
         #if the message starts with the prefix and the message wasn't sent by the bot...
         if not self.user == message.author and message.content[:len(settings["prefix"])] == settings["prefix"]:
             #extract the arguments
@@ -57,7 +66,7 @@ class MyClient(discord.Client):
                 #import the file containing the command dynamically
                 file = importlib.import_module("Commands."+command.lower(),"Commands")
                 #execute the command
-                await file.main(message,args,db)
+                await file.main(self,message,args,db)
 
             else:
                 await message.reply("Command not found :(")
