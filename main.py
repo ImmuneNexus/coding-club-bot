@@ -5,6 +5,8 @@ import importlib
 from discord import channel
 from discord.flags import Intents
 import pymongo
+from dotenv import load_dotenv
+load_dotenv()
 
 #initialize connection to database
 dbclient = pymongo.MongoClient("mongodb+srv://admin:admin1234@cluster0.ud89j.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
@@ -69,4 +71,4 @@ class MyClient(discord.Client):
 #create an instance of the client class we made
 client = MyClient(intents=discord.Intents.all())
 #run the bot with the token you provide
-client.run('OTA2Mjk0Mzc1NTkwNTM5Mjk0.YYWiaQ.PzjSvcXU39AoEJnZOkiZ6kTfSvY')
+client.run(os.environ.get("DISCORD_TOKEN"))
