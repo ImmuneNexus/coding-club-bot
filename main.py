@@ -1,10 +1,12 @@
 #Import discord.py
+from datetime import datetime
 import discord
 import os
 import importlib
 from discord import channel
 from discord.flags import Intents
 import pymongo
+import asyncio
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -17,6 +19,18 @@ class MyClient(discord.Client):
     #when the bot is initialized...
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
+        while True:
+            for server in db.ServerInfo.find():
+                for n,listofannouncements in server["announcements"].items():
+                    if listofannouncements != []:
+                        for announcement in listofannouncements:
+                            if announcement["freq"] == "daily" and announcement["time"].minute == datetime.now().minute:
+                                guild = self.get_guild(announcement["guild"])
+                                channel = guild.get_channel(announcement["channel"])
+                                await channel.send(announcement["message"])
+            await asyncio.sleep(60)
+
+                            
 
     #when the bot detects a message...
 
@@ -28,15 +42,14 @@ class MyClient(discord.Client):
         #if no database entry exists for the server, make one.
         if not db.ServerInfo.find_one({"_id":message.guild.id}):
             dictofusers = {}
-            print(str(message.guild.members))
             for member in message.guild.members:
-                # !!ADD LEVELS!!!
                 dictofusers[str(member.id)] = {"xp":0,"level":1}
                 
             post = {
                 "_id":message.guild.id,
                 "prefix":"!",
-                "users":dictofusers
+                "users":dictofusers,
+                "announcements":{"recurring":[],"standalone":[]}
             }
             db.ServerInfo.insert_one(post)
         #grab the sever settings from the database
