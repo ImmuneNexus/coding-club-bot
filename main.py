@@ -28,6 +28,10 @@ class MyClient(discord.Client):
                                 guild = self.get_guild(announcement["guild"])
                                 channel = guild.get_channel(announcement["channel"])
                                 await channel.send(announcement["message"])
+                            elif announcement["freq"] == "weekly" and announcement["day"] == datetime.now().weekday() and announcement["time"].minute == datetime.now().minute:
+                                guild = self.get_guild(announcement["guild"])
+                                channel = guild.get_channel(announcement["channel"])
+                                await channel.send(announcement["message"])
             await asyncio.sleep(60)
 
                             
