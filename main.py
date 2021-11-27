@@ -7,6 +7,7 @@ from discord import channel
 from discord.flags import Intents
 import pymongo
 import asyncio
+from threading import Timer
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -14,8 +15,15 @@ load_dotenv()
 dbclient = pymongo.MongoClient(os.environ.get("DATABASE_ADDRESS"))
 db = dbclient.test
 
+
+
+
+
+
+
 #create client class which will hold what to do on certain events
 class MyClient(discord.Client):
+    spamobj = {}
     #when the bot is initialized...
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
@@ -37,8 +45,22 @@ class MyClient(discord.Client):
                             
 
     #when the bot detects a message...
+    def deletespamuser(self,userid):
+        self.spamobj.pop(userid)
 
 
+    async def update_spam(self,userid):
+        if userid in self.spamobj:
+            print(str(self.spamobj[userid][1].is_alive()))
+            self.spamobj[userid][1].cancel()
+            self.spamobj[userid][1].join()
+            self.spamobj[userid][1] = Timer(10.0, self.deletespamuser, [userid])
+            self.spamobj[userid][1].start()
+            self.spamobj[userid][0] += 1
+        else:
+            t = Timer(10.0, self.deletespamuser, [userid])
+            self.spamobj[userid] = [1, t]
+            self.spamobj[userid][1].start()
 
 
     async def on_message(self, message):
@@ -58,6 +80,9 @@ class MyClient(discord.Client):
             db.ServerInfo.insert_one(post)
         #grab the sever settings from the database
         settings = db.ServerInfo.find_one({"_id":message.guild.id})
+        
+        await self.update_spam(message.author.id)
+        print(str(self.spamobj))
 
         #add xp
         #max_xp = db.ServerInfo.find_one()
@@ -69,7 +94,7 @@ class MyClient(discord.Client):
 
 
         #if the message starts with the prefix and the message wasn't sent by the bot...
-        if not self.user == message.author and message.content[:len(settings["prefix"])] == settings["prefix"]:
+        if not self.user == message.author and message.content.startswith(settings["prefix"]):
             #extract the arguments
             args = message.content.split(" ")
             #remove whitespace arguments
